@@ -5,36 +5,41 @@
 #include <dirent.h>
 
 #define _calloc(n,t) (t*)malloc(n*sizeof(t)) 
-#define F_DIR		00
-#define F_FILE		01
-#define F_SELECTED	02
+#define F_DIR		01
+#define F_FILE		02
+#define F_SELECTED	04
 
-char *dirpath ;
+
 
 struct dir {
+	int level ;
+	int flags ;
 	char *name ;
-	short int flags ;
-	struct *dir s ;
-	struct *dir c ;
-} 
+	struct dir *sibling ;
+	struct dir *child ;
+}
 
 
-struct dir *build_tree (const char *path) ;
+struct dir *build_tree (char *path) ;
 void die(char *s) ;
-void prepare_path (char *t, const char *s1, const char *s2) ;
+void prepare_path (char *t, char *s1, char *s2) ;
 
 
 #include "config.h"
 
 
-struct dir *build_tree (const char *path) {
-	struct dir *ret ;
+struct dir *build_tree (char *path) {
 	struct dirent *e ;
 	struct stat *s ;
-	DIR *d = opendir(path) ;
+	DIR *d ;
+	struct dir *ret ;
+	ret = _calloc(1,struct dir) ;
+
+	*d = opendir(path) ;
 	if (!d)
 		return NULL ;
 	while((e = readdir(path)) != NULL) {
+		
 	}
 
 }
@@ -44,7 +49,8 @@ void die(char *s) {
 	exit(EXIT_FAILURE) ;
 }
 
-void prepare_path (char *t, const char *s1, const char *s2) {
+
+void prepare_path (char *t, char *s1, char *s2) {
 	strcpy(t,s1) ;
 	strcat(t,s2) ;
 }
@@ -52,6 +58,7 @@ void prepare_path (char *t, const char *s1, const char *s2) {
 
 
 int main(int argc, char **argv, char **env) {
+	char *dirpath ;
 	if (argc != 2)
 		die("tombstone-"VERSION" (c) 2009 Alexander Surma\n") ;
 	dirpath = _calloc(strlen(argv[1]+strlen(ROOT)),char) ;
