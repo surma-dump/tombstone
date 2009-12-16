@@ -149,7 +149,6 @@ void prepare_path (char *t, char *s1, char *s2) {
 int main(int argc, char **argv, char **env) {
 	char *dirpath ;
 	struct filespace fs ;
-	struct tree *t, *s ;
 	if (argc != 2)
 		1; //die("tombstone-"VERSION" (c) 2009 Alexander Surma\n") ; // DEBUG!! //FIXME
 	init_filespace(&fs, ROOT) ;
