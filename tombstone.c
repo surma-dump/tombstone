@@ -11,14 +11,26 @@
 
 
 
-struct dir {
-	int level ;
-	int flags ;
+struct item {
 	char *name ;
-	struct dir *sibling ;
-	struct dir *child ;
+	int flags ;
 }
 
+struct tree {
+	struct item *item ;
+	struct tree *sibling ;
+	struct tree *child ;
+}
+
+struct level {
+	struct item *item ;
+	struct level *next ;
+}
+
+struct levelhead {
+	struct level *list ;
+	struct levelhead *next ;
+}
 
 struct dir *build_tree (char *path) ;
 void die(char *s) ;
