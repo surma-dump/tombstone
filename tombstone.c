@@ -5,9 +5,10 @@
 #include <dirent.h>
 
 #define _calloc(t,n) (t*)malloc(n*sizeof(t)) 
-#define F_DIR		01
-#define F_FILE		02
-#define F_SELECTED	04
+#define F_DIR		001
+#define F_FILE		002
+#define F_SELECTED	004
+#define F_INVALID	010
 
 
 
@@ -27,7 +28,7 @@ struct tree {
 
 struct bucket {
 	struct item *item ;
-	struct bucken *next ;
+	struct bucket *next ;
 } ;
 
 struct hashlist {
@@ -84,7 +85,6 @@ void free_filespace(struct filespace *f) {
 }
 
 void free_hashlist(struct hashlist *h) {
-
 }
 
 void free_tree(struct tree *t) {
