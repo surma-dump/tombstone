@@ -1,4 +1,4 @@
-CFLAGS=-I. -I/usr/include `pkg-config --cflags glib-2.0`
+CFLAGS=-I. -I/usr/include `pkg-config --cflags glib-2.0` -DDEBUG
 LDFLAGS=`pkg-config --libs glib-2.0`
 all:
 	gcc tombstone.c -o tombstone ${CFLAGS} ${LDFLAGS}
