@@ -42,10 +42,11 @@ struct filespace {
 	struct tree *tree ;
 } ;
 
-void add_child(struct tree *t, struct tree *c) ;
+void add_child(struct tree *t, struct item *_c) ;
 void die(char *s) ;
 void free_filespace(struct filespace *f) ;
 void free_hashlist(struct hashlist *h) ;
+void free_item(struct item *i) ;
 void free_tree(struct tree *t) ;
 void init_filespace(struct filespace *f, char *path) ;
 void init_hashlist(struct hashlist *h, int size, hash_func hf) ;
@@ -60,7 +61,11 @@ void print_tree(struct tree *t, int indent) ;
 #include "config.h"
 
 
-void add_child(struct tree *t, struct tree *c) {
+void add_child(struct tree *t, struct item *_c) {
+	struct tree *c = _calloc(struct tree, 1) ;
+	init_tree(c) ;
+	c->item = _c ;
+
 	if (t->child != NULL) {
 		struct tree *p = t->child->sibling ;
 		t->child->sibling = c ;
@@ -87,6 +92,10 @@ void free_filespace(struct filespace *f) {
 void free_hashlist(struct hashlist *h) {
 }
 
+void free_item(struct item *i) {
+	free(i->name) ;
+}
+
 void free_tree(struct tree *t) {
 	if (t->child != NULL) {
 		struct tree *p = t->child->sibling ;
@@ -97,6 +106,8 @@ void free_tree(struct tree *t) {
 		}
 		free_tree(p) ;
 	}
+	if(t->item != NULL)
+		free_item(t->item) ;
 	free(t) ;
 }
 
