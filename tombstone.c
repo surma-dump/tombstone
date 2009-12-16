@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <dirent.h>
 
-#define _calloc(n,t) (t*)malloc(n*sizeof(t)) 
+#define _calloc(t,n) (t*)malloc(n*sizeof(t)) 
 #define F_DIR		01
 #define F_FILE		02
 #define F_SELECTED	04
