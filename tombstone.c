@@ -153,7 +153,10 @@ void print_tree(struct tree *t, int indent) {
 	int i;
 	for(i = 0; i < indent; i++)
 		printf("\t") ;
-	printf("X\n") ;
+	if(t->item != NULL)
+		printf("%s\n",t->item->name) ;
+	else
+		printf("Root\n") ;
 	if(t->child != NULL) {
 		struct tree *p = t->child->sibling ;
 		while(p != t->child) {
