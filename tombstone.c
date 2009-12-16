@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #define _calloc(t,n) (t*)malloc(n*sizeof(t)) 
 #define F_DIR		001
@@ -42,7 +43,7 @@ struct filespace {
 	struct tree *tree ;
 } ;
 
-void add_child(struct tree *t, struct item *_c) ;
+struct tree *add_child(struct tree *t, struct item *_c) ;
 void die(char *s) ;
 void free_filespace(struct filespace *f) ;
 void free_hashlist(struct hashlist *h) ;
@@ -51,8 +52,10 @@ void free_tree(struct tree *t) ;
 void init_filespace(struct filespace *f, char *path) ;
 void init_hashlist(struct hashlist *h, int size, hash_func hf) ;
 void init_tree(struct tree *t) ;
+int is_dir(char *path) ;
 int modulo_hash(int size, char* name) ;
-void prepare_path (char *t, char *s1, char *s2) ;
+void path_to_filespace(struct tree *t, struct hashlist *h, char *path) ;
+void prepare_path (char *t, char *s1, char *s2, int separator) ;
 
 #ifdef DEBUG
 void print_tree(struct tree *t, int indent) ;	
@@ -61,7 +64,7 @@ void print_tree(struct tree *t, int indent) ;
 #include "config.h"
 
 
-void add_child(struct tree *t, struct item *_c) {
+struct tree *add_child(struct tree *t, struct item *_c) {
 	struct tree *c = _calloc(struct tree, 1) ;
 	init_tree(c) ;
 	c->item = _c ;
@@ -76,7 +79,7 @@ void add_child(struct tree *t, struct item *_c) {
 		c->sibling = c ;
 	}
 	c->parent = t ;
-	return ;
+	return c;
 }
 
 void die(char *s) {
@@ -116,6 +119,7 @@ void init_filespace(struct filespace *f, char *path) {
 	init_hashlist((f->hash), HASHSIZE, hash) ;
 	f->tree = _calloc(struct tree, 1) ;
 	init_tree(f->tree) ;
+	path_to_filespace(f->tree, f->hash, path) ;
 }
 
 void init_hashlist(struct hashlist *h, int size, hash_func hf) {
@@ -131,6 +135,12 @@ void init_tree(struct tree *t) {
 	t->parent = NULL ;
 }
 
+int is_dir(char *path) {
+	struct stat s ;
+	stat(path, &s) ;
+	return S_ISDIR(s.st_mode) ;
+}
+
 // Interpretes the string as a numbe to base 256
 int modulo_hash(int size, char *name) {
 	int i = 0;
@@ -139,8 +149,19 @@ int modulo_hash(int size, char *name) {
 	return i ;
 }
 
-void prepare_path (char *t, char *s1, char *s2) {
+void path_to_filespace(struct tree *t, struct hashlist *h, char *path) {
+	DIR *d ;
+	struct dirent *e ;
+	struct tree *new ;
+	char *newpath ;
+	struct item *item ;
+	//FIXME Oh dear god please FIXME
+}
+
+void prepare_path(char *t, char *s1, char *s2, int separator) {
 	strcpy(t,s1) ;
+	if(separator)
+		strcpy(t,"/") ;
 	strcat(t,s2) ;
 }
 
@@ -151,6 +172,7 @@ int main(int argc, char **argv, char **env) {
 	struct filespace fs ;
 	if (argc != 2)
 		1; //die("tombstone-"VERSION" (c) 2009 Alexander Surma\n") ; // DEBUG!! //FIXME
+
 	init_filespace(&fs, ROOT) ;
 	print_tree(fs.tree,0) ;
 	free_filespace(&fs) ;
