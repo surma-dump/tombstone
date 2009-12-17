@@ -160,7 +160,7 @@ void path_to_filespace(struct tree *t, struct hashlist *h, char *path) {
 	if((d = opendir(path)) != NULL) {
 		while((e = readdir(d)) != NULL) {
 			if(e->d_name[0] != '.') {
-				item = _calloc (struct item, 1) ;
+				item = _calloc(struct item, 1) ;
 				item->name = _calloc(char, strlen(e->d_name)) ;
 				strcpy(item->name, e->d_name) ;
 				newt = add_child(t, item) ;
@@ -186,7 +186,7 @@ void path_to_filespace(struct tree *t, struct hashlist *h, char *path) {
 void prepare_path(char *t, char *s1, char *s2, int separator) {
 	strcpy(t,s1) ;
 	if(separator)
-		strcpy(t,"/") ;
+		strcat(t,"/") ;
 	strcat(t,s2) ;
 }
 
