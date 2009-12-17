@@ -152,10 +152,35 @@ int modulo_hash(int size, char *name) {
 void path_to_filespace(struct tree *t, struct hashlist *h, char *path) {
 	DIR *d ;
 	struct dirent *e ;
-	struct tree *new ;
+	struct tree *newt ;
 	char *newpath ;
 	struct item *item ;
-	//FIXME Oh dear god please FIXME
+	int l = strlen(path) ;
+
+	if((d = opendir(path)) != NULL) {
+		while((e = readdir(d)) != NULL) {
+			if(e->d_name[0] != '.') {
+				item = _calloc (struct item, 1) ;
+				item->name = _calloc(char, strlen(e->d_name)) ;
+				strcpy(item->name, e->d_name) ;
+				newt = add_child(t, item) ;
+
+				newpath = _calloc(char, l+NAME_MAX) ;
+				prepare_path(newpath, path, e->d_name, 1) ;
+
+				if(is_dir(newpath)) {
+					item->flags = F_DIR ;
+					path_to_filespace(newt, h, newpath) ;
+				}
+				else{
+					item->flags = F_FILE ;
+				}
+				free(newpath) ;
+			}
+			//Also, hashlist!
+		}
+		closedir(d) ;
+	}
 }
 
 void prepare_path(char *t, char *s1, char *s2, int separator) {
@@ -186,7 +211,7 @@ void print_tree(struct tree *t, int indent) {
 	for(i = 0; i < indent; i++)
 		printf("\t") ;
 	if(t->item != NULL)
-		printf("%s\n",t->item->name) ;
+		printf("%s (%s)\n",t->item->name,(((t->item->flags & F_DIR)==F_DIR)?"Dir":"File")) ;
 	else
 		printf("Root\n") ;
 	if(t->child != NULL) {
