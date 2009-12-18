@@ -35,7 +35,7 @@ struct bucket {
 struct hashlist {
 	int size;
 	hash_func func ;
-	struct bucket *list;
+	struct bucket **list;
 } ;
 
 struct filespace {
@@ -43,7 +43,7 @@ struct filespace {
 	struct tree *tree ;
 } ;
 
-struct tree *add_child(struct tree *t, struct item *_c) ;
+struct tree *add_child(struct tree *t, struct item *i) ;
 void die(char *s) ;
 void free_filespace(struct filespace *f) ;
 void free_hashlist(struct hashlist *h) ;
@@ -59,15 +59,16 @@ void prepare_path (char *t, char *s1, char *s2, int separator) ;
 
 #ifdef DEBUG
 void print_tree(struct tree *t, int indent) ;	
+void print_hash(struct hashlist *h) ;
 #endif
 
 #include "config.h"
 
 
-struct tree *add_child(struct tree *t, struct item *_c) {
+struct tree *add_child(struct tree *t, struct item *i) {
 	struct tree *c = _calloc(struct tree, 1) ;
 	init_tree(c) ;
-	c->item = _c ;
+	c->item = i ;
 
 	if (t->child != NULL) {
 		struct tree *p = t->child->sibling ;
