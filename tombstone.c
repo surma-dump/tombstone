@@ -26,7 +26,7 @@ struct tree {
 } ;
 
 struct bucket {
-	struct item *item ;
+	struct tree *tree ;
 	struct bucket *next ;
 } ;
 
@@ -42,7 +42,7 @@ struct filespace {
 } ;
 
 struct tree *add_child(struct tree *t, struct item *i) ;
-void add_hash(struct hashlist *h, struct item *i) ;
+void add_hash(struct hashlist *h, struct tree *t) ;
 void die(char *s) ;
 void free_filespace(struct filespace *f) ;
 void free_hashlist(struct hashlist *h) ;
@@ -82,10 +82,10 @@ struct tree *add_child(struct tree *t, struct item *i) {
 	return c;
 }
 
-void add_hash(struct hashlist *h, struct item *i) {
+void add_hash(struct hashlist *h, struct tree *t) {
 	struct bucket *b = _calloc(struct bucket, 1) ;	
-	int j = hash(HASHSIZE, i->name) ;
-	b->item = i ;
+	int j = hash(HASHSIZE, t->item->name) ;
+	b->tree = t ;
 	b->next = h->list[j] ; 
 	h->list[j] = b ;
 }
@@ -199,7 +199,7 @@ void path_to_filespace(struct tree *t, struct hashlist *h, char *path) {
 					item->flags = F_FILE ;
 				}
 				free(newpath) ;
-				add_hash(h, item) ;
+				add_hash(h, newt) ;
 			}
 		}
 		closedir(d) ;
@@ -238,7 +238,7 @@ void print_hash(struct hashlist *h) {
 		printf("%4d | ",i) ;
 		b = h->list[i] ;
 		while(b != NULL) {
-			printf("\"%s\" ->",b->item->name) ;
+			printf("\"%s\" ->",b->tree->item->name) ;
 			b = b->next ;
 		}
 		printf("NULL\n") ;
