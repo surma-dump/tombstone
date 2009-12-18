@@ -11,8 +11,6 @@
 #define F_SELECTED	004
 #define F_INVALID	010
 
-
-
 typedef int(*hash_func)(int size, char* name) ;
 
 struct item {
@@ -44,6 +42,7 @@ struct filespace {
 } ;
 
 struct tree *add_child(struct tree *t, struct item *i) ;
+void add_hash(struct hashlist *h, struct item *i) ;
 void die(char *s) ;
 void free_filespace(struct filespace *f) ;
 void free_hashlist(struct hashlist *h) ;
@@ -83,6 +82,14 @@ struct tree *add_child(struct tree *t, struct item *i) {
 	return c;
 }
 
+void add_hash(struct hashlist *h, struct item *i) {
+	struct bucket *b = _calloc(struct bucket, 1) ;	
+	int j = hash(HASHSIZE, i->name) ;
+	b->item = i ;
+	b->next = h->list[j] ; 
+	h->list[j] = b ;
+}
+
 void die(char *s) {
 	fputs(s, stdout) ;
 	exit(EXIT_FAILURE) ;
@@ -94,6 +101,17 @@ void free_filespace(struct filespace *f) {
 }
 
 void free_hashlist(struct hashlist *h) {
+	int i ;
+	struct bucket *b ;
+
+	for(i = 0; i < HASHSIZE; i++) {
+		while(h->list[i] != NULL) {
+			b = h->list[i] ;
+			h->list[i] = h->list[i]->next ;
+			free(b) ;
+		}
+	}
+	free(h->list) ;
 }
 
 void free_item(struct item *i) {
@@ -124,8 +142,12 @@ void init_filespace(struct filespace *f, char *path) {
 }
 
 void init_hashlist(struct hashlist *h, int size, hash_func hf) {
+	int i ;
+
 	h->size = size ;
-	h->list = _calloc(struct bucket, size) ;
+	h->list = _calloc(struct bucket*, size) ;
+	for(i = 0; i < HASHSIZE; i++) 
+		h->list[i] = NULL ;
 	h->func = hf ;
 }
 
@@ -177,8 +199,8 @@ void path_to_filespace(struct tree *t, struct hashlist *h, char *path) {
 					item->flags = F_FILE ;
 				}
 				free(newpath) ;
+				add_hash(h, item) ;
 			}
-			//Also, hashlist!
 		}
 		closedir(d) ;
 	}
@@ -201,11 +223,28 @@ int main(int argc, char **argv, char **env) {
 
 	init_filespace(&fs, ROOT) ;
 	print_tree(fs.tree,0) ;
+	print_hash(fs.hash) ;
 	free_filespace(&fs) ;
 	return 0 ;
 }
 
 #ifdef DEBUG
+
+void print_hash(struct hashlist *h) {
+	int i;
+	struct bucket *b ;
+	printf("HASH | Inhalt\n") ; 
+	for(i = 0; i < HASHSIZE; i++) {
+		printf("%4d | ",i) ;
+		b = h->list[i] ;
+		while(b != NULL) {
+			printf("\"%s\" ->",b->item->name) ;
+			b = b->next ;
+		}
+		printf("NULL\n") ;
+	}
+}
+
 // Bad, recursive DFS
 void print_tree(struct tree *t, int indent) {
 	int i;
