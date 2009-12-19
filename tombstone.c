@@ -184,11 +184,11 @@ void path_to_filespace(struct tree *t, struct hashlist *h, char *path) {
 		while((e = readdir(d)) != NULL) {
 			if(e->d_name[0] != '.') {
 				item = _calloc(struct item, 1) ;
-				item->name = _calloc(char, strlen(e->d_name)) ;
+				item->name = _calloc(char, strlen(e->d_name) + 1) ;
 				strcpy(item->name, e->d_name) ;
 				newt = add_child(t, item) ;
 
-				newpath = _calloc(char, l+NAME_MAX) ;
+				newpath = _calloc(char, l+NAME_MAX+2) ;
 				prepare_path(newpath, path, e->d_name, 1) ;
 
 				if(is_dir(newpath)) {
