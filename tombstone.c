@@ -43,6 +43,7 @@ struct filespace {
 
 struct tree *add_child(struct tree *t, struct item *i) ;
 void add_hash(struct hashlist *h, struct tree *t) ;
+void cat_file(char *f) ;
 void die(char *s) ;
 void free_filespace(struct filespace *f) ;
 void free_hashlist(struct hashlist *h) ;
@@ -55,6 +56,7 @@ int is_dir(char *path) ;
 int modulo_hash(int size, char* name) ;
 void path_to_filespace(struct tree *t, struct hashlist *h, char *path) ;
 void prepare_path (char *t, char *s1, char *s2, int separator) ;
+char *strip_prefix(char *s, char *p) ;
 
 #ifdef DEBUG
 void print_tree(struct tree *t, int indent) ;	
@@ -88,6 +90,19 @@ void add_hash(struct hashlist *h, struct tree *t) {
 	b->tree = t ;
 	b->next = h->list[j] ; 
 	h->list[j] = b ;
+}
+
+void cat_file(char *p) {
+	FILE *f ;
+	char c ;
+	f = fopen(p,"r") ;
+	if(!f) {
+		printf("\"%s\" not cat-able\n",p) ;
+		return ;
+	}
+	while((c = fgetc(f)) != EOF)
+		printf("%c", c) ;
+	fclose(f) ;
 }
 
 void die(char *s) {
@@ -213,17 +228,30 @@ void prepare_path(char *t, char *s1, char *s2, int separator) {
 	strcat(t,s2) ;
 }
 
+char *strip_prefix(char *s, char *p) {
+	while(*p != '\0') {
+		if (*s == *p) {
+			p++ ;
+			s++ ;
+		}
+		else
+			return NULL ;
+	}
+	return s ;
+}
 
 
 int main(int argc, char **argv, char **env) {
-	char *dirpath ;
+	char *relpath ;
 	struct filespace fs ;
 	if (argc != 2)
 		1; //die("tombstone-"VERSION" (c) 2009 Alexander Surma\n") ; // DEBUG!! //FIXME
 
 	init_filespace(&fs, ROOT) ;
-	print_tree(fs.tree,0) ;
-	print_hash(fs.hash) ;
+	cat_file(HEADER) ;
+	relpath = strip_prefix(argv[1],ROOT) ;
+	tag_path(fs->tree, relpath) ;
+	cat_file(FOOTER) ;
 	free_filespace(&fs) ;
 	return 0 ;
 }
